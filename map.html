@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 20px; padding: 20px; }
+      
+      .mapWrapper { overflow: hidden;position:absolute; }
+      #addressBar { padding: 10px; width: 725px;height: 31px; background-color: #999999;}
+      #address {float:left; height: 26px; width: 311px;}
+      #submit { height: 32px; width: 129px;background-color: red;margin-left:8px;}
+      #mapMask {position:absolute; height: 450px;width:745px;background-color:#999;opacity:0.5;z-index:9;}
+      #infoBox {position:absolute; margin-left:460px;opacity:0.7;background-color: #fff;height:379px; width: 245px;z-index:10; padding: 20px;}
+      #disclaimerAck { height: 32px; width: 129px;background-color: red; cursor: pointer; }
+      
+      .emergencyNumber {float: right;z-index: 11;}
+      
+    </style>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0EXQemEbu8j2xtlKWilob4Txtu67uoQs&sensor=true"></script>
+   <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+    
+    
+    
+  </head>
+  <body>
+    
+    <div class="mapWrapper">
+	    <div id="mapMask"></div>
+	    <div id="addressBar">
+		    <div class="emergencyNumber">Emergency Number: 555.555.5555</div>
+		    <form id="addressSearch" action="#" width="800">
+		    	<input id="address" name="address" disabled="true" />
+		    	<input type="image" name="submit" id="submit" alt="Search" title="Search" />
+		    </form>
+		    
+	    </div>
+	    <div id="infoBox">
+		    <h3>Disclaimer text</h3>
+		    <p>Blah blah blah Blah blah blah Blah blah blah Blah blah blah Blah blah blahBlah blah blah</p>
+		    <p>Blah blah blah</p>
+		    <p>Blah blah blah</p>
+		    <p>Blah blah blah</p>
+		    <p><img src="#" alt="I Agree" title="I Agree" id="disclaimerAck" /></p>
+	    </div>
+	    <div id="map_canvas" style="width:745px; height:419px;"></div>
+    </div>
+    
+    
+    <script type="text/javascript">
+      
+	    // Our configuration object
+	    var mapConfig = {
+		    "googleMapsAPIKey": "AIzaSyD0EXQemEbu8j2xtlKWilob4Txtu67uoQs",
+		    "startLat": 39.750220991707636,
+		    "startLong": -84.3315859375,
+		    "startZoom": 6
+		}
+
+		var xmapConfig = {
+			"googleMapsAPIKey": "AIzaSyD0EXQemEbu8j2xtlKWilob4Txtu67uoQs",
+			"startLat": 39.92130224355926, //39.750220991707636,
+			"startLong": -86.61766486740112, //-84.3315859375,
+			"startZoom": 18 //6
+		}
+		var kml, map;
+		
+		// Maps initialize function
+		function initialize() {
+
+			var geocoder = new google.maps.Geocoder();
+			
+			
+			var mapOptions = {
+				center: new google.maps.LatLng(mapConfig.startLat, mapConfig.startLong),
+				zoom: mapConfig.startZoom,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+
+			map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+			
+			var kmlOptions = {
+				preserveViewport: true,
+				suppressInfoWindows: true
+			};
+			kml = new google.maps.KmlLayer('http://www.marathonpetroleum.com/content/includes/MPL_Pipelines.kmz', kmlOptions);
+			kml.setMap(map);
+			
+			
+			google.maps.event.addListener(kml, 'click', function(kmlEvent) {
+				showInDiv(kmlEvent);
+			});
+
+			function showInDiv(featureData) {
+				console.dir(featureData);
+			}
+			
+			function codeAddress() {
+		        var address = document.getElementById('address').value;
+		        geocoder.geocode( { 'address': address}, function(results, status) {
+		          if (status == google.maps.GeocoderStatus.OK) {
+		            map.setCenter(results[0].geometry.location);
+		            var marker = new google.maps.Marker({
+		                map: map,
+		                position: results[0].geometry.location
+		            });
+		          } else {
+		            console.log('Geocode was not successful for the following reason: ' + status);
+		          }
+		        });
+		      }
+      
+			
+			$('#disclaimerAck').click( function() {
+				$('#address').attr('disabled', false);
+				$('#mapMask').fadeOut();
+				$('#infoBox').animate({'margin-left': 745}, 500, function() {
+					$('#infoBox').html('');
+				});
+			});
+			
+			$('#addressSearch').submit( function() {
+				codeAddress();
+				return false;
+			} );
+
+/* //map placement code
+// Listen for the dragend event
+google.maps.event.addListener(map, 'dragend', function() {
+
+var c = map.getCenter(),
+x = c.lng(),
+y = c.lat();
+console.log('lng:'+x, 'lat:'+y);
+});
+
+// Limit the zoom level
+google.maps.event.addListener(map, 'zoom_changed', function() {
+console.log('zoom: '+map.getZoom());
+
+});
+*/
+		}
+
+		initialize();
+
+    </script>
+    
+    
+  </body>
+</html>
+
+
